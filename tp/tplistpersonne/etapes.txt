@@ -1,0 +1,5 @@
+ creation bd boutique 
+ importation db
+ extraction dossier dans wamp/www
+ changement configuration db BaseDonnee.php  		$this->mysqli = new mysqli("localhost", "root", "", "boutique");
+ 

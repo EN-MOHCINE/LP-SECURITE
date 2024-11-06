@@ -1,0 +1,138 @@
+// pour afficher la Version 
+	openssl version
+
+// pour afficher la liste des commandes list-standard-commands
+
+	openssl list-standard-commands
+	
+	ca:  To create certificate authorities.
+	dgst:  To compute hash functions.
+	enc : To encrypt/decrypt using secret key algorithms. It is possible to generate using a password or directly a secret key stored in a file.
+	genrsa:  This command permits to generate a pair of public/private key for the RSA algorithm.
+	password Generation of “hashed passwords”.
+	pkcs12 Tools to manage information according to the PKCS #12 standard.
+	pkcs7 Tools to manage information according to the PKCS #7 standard.
+	rand Generation of pseudo-random bit strings.
+	rsa RSA data management.
+	rsautl To encrypt/decrypt or sign/verify signature with RSA.
+	verify Checkings for X509.
+	x509 Data managing for X509.
+
+//liste des algorithme utilisés en openssl
+	openssl list-cipher-algorithms
+
+
+// 1) Generation d'une clef AES (symétrique)
+	openssl enc -aes-128-cbc -k secret -P -md sha1
+
+
+//Exemple de cryptage et décryptage d'un fichier utilisant AES
+//remarque: ces commandes sont valables pour toute la liste des algos dispo en openssl
+	Encrypt:
+		openssl enc -aes-256-cbc -in un_encrypted.data -out encrypted.data
+	Decrypt:
+		openssl enc -d -aes-256-cbc -in encrypted.data -out un_encrypted.data
+
+
+//2) voici RSA l'algo asymétrique
+
+//generation d'une paire de clef public et privée
+	
+	openssl genrsa -out key.pem 1024
+
+//details clé
+	openssl rsa -in key.pem -text -noout
+
+//crypter la clé privée et la mettre dans un autre fichier
+	 openssl rsa -in key.pem -des3 -out enc-key.pem
+				 -aes256
+//extraction de la clé public et la mettre dans un autre fichier 
+	openssl rsa -in key.pem -pubout -out pub-key.pem
+
+
+//Crypter avec la clef public RSA
+	openssl rsautl -encrypt -pubin -inkey pub-key.pem -in test.txt -out encrypted.txt
+
+//décrypter avec la clef privée RSA
+	openssl rsautl -decrypt -inkey enc-key.pem -in encrypted.txt -out plaintext.txt
+
+//signature numérique avec sha1
+
+	openssl dgst -sha1 -sign enc-key.pem file.txt > file.txt.sig
+	openssl dgst -sha1 -verify pub-key.pem -signature file.txt.sig file.txt
+
+
+
+//certificat de type X509
+//1ere démarche par RSA
+
+//pour crérer la première fois clef et certificat auto signed
+	openssl req -x509 -newkey  rsa:2048 -keyout key.pem -out cert.pem -days 11000
+
+//si vous avez déja la clef et vous voulez juste créer le certificat auto signé
+	openssl req -x509 -new -days 100000 -key enc-key.pem -out certificate.pem
+    
+//Pour voir les détails de la certificate.cer    
+    openssl x509 -in server.pem -text -noout
+
+//demande ou request de signature au pret de CA
+	openssl req -new -key private-key-client.pem > certificat-client.cer
+
+//signature de certificat par CA-RITM signed
+	openssl x509 -req -days 730 -in certificat-client.cer -CA certificate.cer  -CAkey enc-key.pem -set_serial 01 -out certificate-client-signe.cer
+
+//verification de l'exactitude d'un certificat
+openssl verify -CAfile certificate.cer certificate-client-signe.cer 
+
+
+
+
+//2eme démarche par Elleptic curve (Chiffrement Asymétrique)
+
+//Lister les courbe déja implemeté
+	openssl ecparam -list_curves
+
+//Creation de la clé privé
+	openssl ecparam -name secp521r1 -genkey -param_enc explicit -out private-key.pem
+
+//creatipon de certificat 	
+	openssl req -new -x509 -key private-key.pem -out server.pem -days 730
+
+//détails sur la clef privée generée par EC 
+	openssl ecparam -in private-key.pem -text -noout
+
+//Détails sur le certificat EC	
+openssl x509 -in server.cer -text -noout
+	 
+
+//Creér une clef privée client
+	openssl ecparam -name secp521r1 -genkey -param_enc explicit -out private-key-client.pem
+
+//create un certificat requte 
+ 
+	openssl req -new -key private-key-client.pem > certificat-client.cer
+
+//signer le certifica par la CA
+
+openssl x509 -req -days 730 -in certificat-client-EC.cer -CA server.cer -CAkey private-key.pem -set_serial 01 -out certificat-clientEC-signe.cer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
