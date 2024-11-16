@@ -1,0 +1,46 @@
+https://www.onlinegdb.com/online_c++_compiler
+
+
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int main(void) {
+    char buff[15];
+    int pass = 0;
+    int attempts = 0;
+
+    while(attempts < 3) {
+        printf("\n Enter the password: \n");
+        fgets(buff, sizeof(buff), stdin);
+        buff[strcspn(buff, "\n")] = '\0'; // Remove newline character
+
+        if(strlen(buff) >= sizeof(buff)) {
+            printf("\n Password is too long. Try again.\n");
+            continue;
+        }
+
+        if(strcmp(buff, "tmardasri") == 0) {
+            printf("\n Correct Password \n");
+            pass = 1;
+            break;
+        } else {
+            printf("\n Wrong Password \n");
+        }
+
+        attempts++;
+    }
+
+    if(attempts == 3) {
+        printf("\n Too many incorrect attempts. Please try again later.\n");
+        return 1;
+    }
+
+    if(pass) {
+        /* Now give root or admin rights to user */
+        printf("\n Root privileges given to the user \n");
+    }
+
+    return 0;
+}
